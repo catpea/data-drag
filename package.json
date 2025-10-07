@@ -1,6 +1,6 @@
 {
   "name": "data-drag",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lightweight drag-and-drop library with Shadow DOM support. Beautiful code, extensive documentation, perfect for teaching and building complex interfaces.",
   "main": "index.js",
   "type": "module",
