@@ -1,28 +1,25 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "data-drag",
   "description": "Lightweight, Beautifully Coded, Well Documented WebComponent friendly Sort, Drag, Copy, Move",
   "main": "index.js",
   "type": "module",
-
   "scripts": {
     "save": "git add .; git commit -m 'Updated Release'; npm version patch; npm publish; git push --follow-tags;",
     "test": "node test"
   },
-  "keywords": ["draggable", "sortable"],
-
-
+  "keywords": [
+    "draggable",
+    "sortable"
+  ],
   "author": "@catpea",
   "license": "ISC",
-
- "repository": {
+  "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/catpea/data-drag.git"
   },
   "bugs": {
     "url": "https://github.com/catpea/data-drag/issues"
   },
-
   "homepage": "https://github.com/catpea/data-drag#readme"
-
 }
