@@ -17,6 +17,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "demo": "http-server -c-1 -o .",
     "save": "git add .; git commit -m 'Updated Release'; npm version patch; npm publish; git push --follow-tags;",
     "test": "node test"
   },

@@ -1,263 +1,133 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>" />
-    <title>Drag Drop - Lifecycle Orchestration</title>
-    <script type="importmap">
-      {
-        "imports": {
-          "data-drag": "./index.js"
-        }
-      }
-    </script>
+<!DOCTYPE html>
+<html>
+<head>
+<script type="importmap">
+  {
+    "imports": {
+      "data-drag": "./index.js"
+    }
+  }
+</script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+    }
 
-    <style>
-      html {
-        color-scheme: light dark;
-        font-family: system-ui, sans-serif;
-      }
+    .board {
+      display: grid;
+      grid-template-columns: 200px 1fr 1fr 1fr;
+      gap: 16px;
+    }
 
-      body {
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-      }
+    .column {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 
-      h1 {
-        color: #0066ff;
-        margin-bottom: 2rem;
-      }
+    .column h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: #666;
+    }
 
-      #directoryListing {
-        display: grid;
-        gap: 1rem;
-      }
+    [data-drag-parent] {
+      min-height: 200px;
+      padding: 8px;
+      background: #f8f8f8;
+      border-radius: 4px;
+    }
 
-      .hello-item {
-        padding: 1rem;
-        background: #f0f0f0;
-        border-radius: 8px;
-        border-left: 4px solid #0066ff;
-      }
+    [data-drag] {
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 4px;
+      cursor: move;
+      user-select: none;
+    }
 
-      .hello-text {
-        font-size: 1.25rem;
-        font-weight: 500;
-        margin: 0;
-      }
+    .templates [data-drag] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
 
-      @media (prefers-color-scheme: dark) {
-        .hello-item {
-          background: #2c2b32;
-          border-left-color: #4d9fff;
-        }
-      }
-    </style>
-    <style>
-      /* https://github.com/animate-css/animate.css/blob/main/source/bouncing_entrances/bounceIn.css */
-      @keyframes changeNotify {
-        from,
-        20%,
-        40%,
-        60%,
-        80%,
-        to {
-          animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-        }
+    .backlog [data-drag],
+    .progress [data-drag],
+    .done [data-drag] {
+      background: white;
+      border: 2px solid #e0e0e0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Kanban Board</h1>
 
-        0% {
-          opacity: 0;
-          transform: scale3d(0.7, 0.7, 0.7);
-        }
-
-        20% {
-          transform: scale3d(1.1, 1.1, 1.1);
-        }
-
-        40% {
-          transform: scale3d(0.9, 0.9, 0.9);
-        }
-
-        60% {
-          opacity: 1;
-          transform: scale3d(1.03, 1.03, 1.03);
-        }
-
-        80% {
-          transform: scale3d(0.97, 0.97, 0.97);
-        }
-
-        to {
-          opacity: 1;
-          transform: scale3d(1, 1, 1);
-        }
-      }
-    </style>
-  </head>
-
-  <body id="apps">
-       <!-- Templates -->
-    <template id="helloWorldTemplate">
-      <!-- Container for repeater -->
-    </template>
-
-    <template id="repeaterTemplate">
-      <div class="change-notify hello-item" data-sortable="parent: querySelector #directoryListing;">
-        <p class="hello-text" data-name="text">Hello World</p>
-      </div>
-    </template>
-    <!-- XML App Declaration -->
-    <!--<xml-app id="helloApp" src="gui.xml"></xml-app>-->
-
-    <template id="automatorBody">
-
-        <ul class="list-group" data-sortable-parent='{"adopted": {"data-sortable":{"copy":false,"sort":true}, "class":"list-group-item" }   }'>
-        <li class="list-group-item" data-sortable='{"copy":false, "sort":true}'>Copy files and directories</li>
-        <li class="list-group-item" data-sortable='{"copy":false, "sort":true}'>Move or rename files and directories</li>
-        <li class="list-group-item" data-sortable='{"copy":false, "sort":true}'>Remove files or directories</li>
-        <li class="list-group-item" data-sortable='{"copy":false, "sort":true}'>Create new directories</li>
-        <li class="list-group-item" data-sortable='{"copy":false, "sort":true}'>Remove empty directories</li>
-      </ul>
-
-    </template>
-
-    <template id="automatorLibrary">
-      <ul>
-        <li>
-          <strong>File Operations</strong>
-            <ul data-sortable-parent='{ "access":{"order":["allow", "deny"], "allow":[".library"], "deny":[] }}'>
-              <li data-sortable='{"copy":true, "sort":false}'><code>cp</code> - Copy files and directories</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>mv</code> - Move or rename files and directories</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>rm</code> - Remove files or directories</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>mkdir</code> - Create new directories</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>rmdir</code> - Remove empty directories</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>ls</code> - List directory contents</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>cat</code> - Concatenate and display file contents</li>
-              <li data-sortable='{"copy":true, "sort":false}'><code>echo</code> - Display a line of text or variable value</li>
-          </ul>
-        </li>
-        <li>
-          <strong>Search and Find</strong>
-          <ul>
-            <li><code>grep</code> - Search for patterns in files</li>
-            <li><code>find</code> - Search for files in a directory hierarchy</li>
-          </ul>
-        </li>
-        <li>
-          <strong>File Permissions</strong>
-          <ul>
-            <li><code>chmod</code> - Change file permissions</li>
-            <li><code>chown</code> - Change file owner and group</li>
-          </ul>
-        </li>
-        <li>
-          <strong>Archiving and Compression</strong>
-          <ul>
-            <li><code>tar</code> - Archive files into a single archive file</li>
-            <li><code>zip</code> - Package and compress files</li>
-            <li><code>unzip</code> - Extract compressed files</li>
-          </ul>
-        </li>
-        <li>
-          <strong>Process Management</strong>
-          <ul>
-            <li><code>ps</code> - Display current processes</li>
-            <li><code>kill</code> - Terminate processes</li>
-          </ul>
-        </li>
-        <li>
-          <strong>Networking</strong>
-          <ul>
-            <li><code>ping</code> - Check network connectivity</li>
-            <li><code>curl</code> - Transfer data from or to a server</li>
-            <li><code>wget</code> - Download files from the web</li>
-          </ul>
-        </li>
-      </ul>
-    </template>
-
-
-    <div style="display: flex;">
-      <div style="flex: 50%">
-        <use-template href="#automatorLibrary"></use-template>
-      </div>
-
-      <div style="flex: 50%">
-        <use-template href="#automatorBody"></use-template>
+  <div class="board">
+    <!-- Template Palette (copy-only, no sorting) -->
+    <div class="column templates">
+      <h3>🎨 Templates</h3>
+      <div data-drag-parent='{}'>
+        <div data-drag='{"copy":true, "sort":false}'>📄 Task</div>
+        <div data-drag='{"copy":true, "sort":false}'>🐛 Bug</div>
+        <div data-drag='{"copy":true, "sort":false}'>✨ Feature</div>
+        <div data-drag='{"copy":true, "sort":false}'>📝 Note</div>
       </div>
     </div>
 
-
-    <script type="module">
-        // document.addEventListener("sortable:drop", (e) => {
-        //   const { item, isCopy } = e.detail;
-        //   console.log(e);
-        //   console.log(e.detail);
-
-        //   // Programmer handles setting data-sortable on dropped item
-        //   if (isCopy) {
-        //     item.setAttribute("data-sortable", "true");
-        //   }
-        // });
-    </script>
-
-    <script type="module">
-      // Import your lifecycle classes and XmlApp
-      // import { dragDrop } from "ara-ara";
-      import { fetchJson } from "utilities";
-      import { XmlApp, ApplicationLifecycle, TemplateLifecycle, RepeaterLifecycle, TreeLifecycle } from "cede";
-      import { DataSortable, Access } from 'data-sortable';
-      import { UseTemplate } from 'use-template';
-// Register the custom element
-customElements.define('use-template', UseTemplate);
-
-
-
-
-      // import { GreetingRandomizer } from "./lib/GreetingRandomizer.js";
-
-      // const araAra = dragDrop([listA, listB], {
-      //   copy: true,
-      //   revertOnSpill: true,
-      //   direction: 'vertical'
-      // });
-
-      // araAra.on('drop', (item, target, source) => {
-      //   console.log('Dropped!', item);
-      // });
-
-      // // Register lifecycle components
-      // XmlApp.registerLifecycle("Application", ApplicationLifecycle);
-      // XmlApp.registerLifecycle("Template", TemplateLifecycle);
-      // XmlApp.registerLifecycle("Repeater", RepeaterLifecycle);
-      // XmlApp.registerLifecycle("Tree", TreeLifecycle);
-
-      // // User
-
-      // XmlApp.registerLifecycle("GreetingRandomizer", GreetingRandomizer);
-
-      // // Wait for the XML app to load and initialize
-      // const helloAppElement = document.getElementById("helloApp");
-      // await helloAppElement.state.complete;
-
-      // const greetings = await fetchJson('./greetings.json');
-      // helloAppElement.root.tree.write("/helloApp/hello.arr", greetings);
-
-      // // Demonstrate reactivity after 2 seconds
-      // setTimeout(() => {
-      //   console.log("✨ Updating first greeting...");
-      //   helloAppElement.root.tree.write("/helloApp/hello.arr/0/text", "👋 Hello Universe!");
-      // }, 2000);
-    </script>
-
-    <h1>Drag And Drop</h1>
-
-    <div id="helloWorldApp">
-      <div id="directoryListing"></div>
+    <!-- Backlog (adopts configuration) -->
+    <div class="column backlog">
+      <h3>📥 Backlog</h3>
+      <div data-drag-parent='{
+        "adopted": {
+          "data-drag": {"sort":true, "copy":false},
+          "class": "task-item"
+        }
+      }'>
+        <div data-drag='{"sort":true}'>Fix login bug</div>
+      </div>
     </div>
 
+    <!-- In Progress -->
+    <div class="column progress">
+      <h3>⏳ In Progress</h3>
+      <div data-drag-parent='{
+        "adopted": {
+          "data-drag": {"sort":true, "copy":false}
+        }
+      }'>
+        <div data-drag='{"sort":true}'>Build navbar</div>
+      </div>
+    </div>
 
-  </body>
+    <!-- Done -->
+    <div class="column done">
+      <h3>✅ Done</h3>
+      <div data-drag-parent='{
+        "adopted": {
+          "data-drag": {"sort":true, "copy":false}
+        }
+      }'>
+        <div data-drag='{"sort":true}'>Setup project</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { DataDrag } from 'data-drag'; // see import map
+
+    // Listen for events
+    document.addEventListener('datadrag:drop', (e) => {
+      console.log('Item dropped:', e.detail);
+
+      // Update timestamps, save to database, etc.
+      if (e.detail.isCopy) {
+        console.log('This was a copy!');
+      }
+    });
+  </script>
+</body>
 </html>
